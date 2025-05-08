@@ -1,8 +1,84 @@
+"use client";
+
 import SiteLayout from "@/components/layout/SiteLayout";
 import Hero from "@/components/ui/Hero";
 import Image from "next/image";
+import { useEffect, useRef } from "react";
+
+// Define types for Google Maps API
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GoogleMap = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GoogleMarker = any;
+
+interface MapOptions {
+  center: { lat: number; lng: number };
+  zoom: number;
+  mapTypeControl: boolean;
+}
+
+interface MarkerOptions {
+  position: { lat: number; lng: number };
+  map: GoogleMap;
+  title: string;
+}
+
+// Declare global Google Maps types
+declare global {
+  interface Window {
+    google: {
+      maps: {
+        Map: new (element: HTMLElement, options: MapOptions) => GoogleMap;
+        Marker: new (options: MarkerOptions) => GoogleMarker;
+      };
+    };
+    initMap: (() => void) | undefined;
+  }
+}
 
 export default function ContactPage() {
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Initialize Google Maps
+    const initMap = () => {
+      if (mapRef.current && window.google) {
+        // Coordinates for Kumasi, Ghana
+        const kumasi = { lat: 6.6666, lng: -1.6163 };
+
+        const map = new window.google.maps.Map(mapRef.current, {
+          center: kumasi,
+          zoom: 14,
+          mapTypeControl: false,
+        });
+
+        // Add marker for office location
+        new window.google.maps.Marker({
+          position: kumasi,
+          map,
+          title: "RoofGuard Ghana Headquarters",
+        });
+      }
+    };
+
+    // Load Google Maps API if not already loaded
+    if (!window.google) {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      window.initMap = initMap;
+      document.head.appendChild(script);
+    } else {
+      initMap();
+    }
+
+    return () => {
+      // Clean up
+      window.initMap = undefined;
+    };
+  }, []);
+
   return (
     <SiteLayout>
       <Hero
@@ -58,10 +134,10 @@ export default function ContactPage() {
                         Email Us
                       </h4>
                       <a
-                        href="mailto:support@roofguard.com"
+                        href="mailto:ghana@roofguard.com"
                         className="text-primary-600 hover:text-primary-700 transition-colors"
                       >
-                        support@roofguard.com
+                        ghana@roofguard.com
                       </a>
                     </div>
                   </div>
@@ -88,10 +164,10 @@ export default function ContactPage() {
                         Call Us
                       </h4>
                       <a
-                        href="tel:+18005551234"
+                        href="tel:+233200123456"
                         className="text-primary-600 hover:text-primary-700 transition-colors"
                       >
-                        (800) 555-1234
+                        +233 20 012 3456
                       </a>
                     </div>
                   </div>
@@ -123,9 +199,9 @@ export default function ContactPage() {
                         Visit Us
                       </h4>
                       <address className="not-italic text-slate-600">
-                        123 Roofing Way, Suite 400
+                        123 Prempeh Avenue
                         <br />
-                        San Francisco, CA 94105
+                        Kumasi, Ghana
                       </address>
                     </div>
                   </div>
@@ -139,11 +215,11 @@ export default function ContactPage() {
                 <ul className="space-y-2 text-slate-600">
                   <li className="flex justify-between">
                     <span>Monday - Friday:</span>
-                    <span className="font-medium">9:00 AM - 6:00 PM</span>
+                    <span className="font-medium">8:00 AM - 5:00 PM</span>
                   </li>
                   <li className="flex justify-between">
                     <span>Saturday:</span>
-                    <span className="font-medium">10:00 AM - 4:00 PM</span>
+                    <span className="font-medium">9:00 AM - 2:00 PM</span>
                   </li>
                   <li className="flex justify-between">
                     <span>Sunday:</span>
@@ -281,16 +357,20 @@ export default function ContactPage() {
               Visit Our Office
             </h2>
             <p className="text-xl text-slate-600">
-              Our headquarters is conveniently located in downtown San Francisco
+              Our headquarters is conveniently located in Kumasi, Ghana
             </p>
           </div>
 
           <div className="relative w-full h-[450px] rounded-xl overflow-hidden shadow-md">
-            <div className="absolute inset-0 bg-slate-200 flex items-center justify-center">
+            {/* Interactive Google Map */}
+            <div ref={mapRef} className="w-full h-full" />
+
+            {/* Fallback for when map fails to load */}
+            <div className="absolute inset-0 bg-slate-200 flex items-center justify-center pointer-events-none opacity-0">
               <div className="relative w-full h-full">
                 <Image
-                  src="https://maps.googleapis.com/maps/api/staticmap?center=San+Francisco,CA&zoom=13&size=1200x450&markers=color:red%7CSan+Francisco,CA&key=&scale=2"
-                  alt="Map showing RoofGuard office location"
+                  src="https://maps.googleapis.com/maps/api/staticmap?center=Kumasi,Ghana&zoom=14&size=1200x450&markers=color:red%7CKumasi,Ghana&key=&scale=2"
+                  alt="Map showing RoofGuard office location in Kumasi, Ghana"
                   fill
                   className="object-cover"
                 />
@@ -318,19 +398,22 @@ export default function ContactPage() {
                       </svg>
                     </div>
                     <span className="font-medium text-slate-900">
-                      RoofGuard Headquarters
+                      RoofGuard Ghana Headquarters
                     </span>
                   </div>
                 </div>
-                <a
-                  href="https://maps.google.com/?q=San+Francisco,CA"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute inset-0"
-                  aria-label="View location on Google Maps"
-                ></a>
               </div>
             </div>
+
+            <a
+              href="https://maps.google.com/?q=Kumasi,Ghana"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-4 right-4 bg-white py-2 px-4 rounded-lg shadow-md text-primary-600 font-medium hover:bg-primary-50 transition-colors"
+              aria-label="View location on Google Maps"
+            >
+              View on Google Maps
+            </a>
           </div>
         </div>
       </section>
@@ -343,9 +426,9 @@ export default function ContactPage() {
               Join Our Network of Contractors
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-              Are you a roofing professional looking to grow your business? Join
-              our network to connect with customers seeking quality roofing
-              services.
+              Are you a roofing professional in Ghana looking to grow your
+              business? Join our network to connect with customers seeking
+              quality roofing services.
             </p>
             <button className="bg-white text-primary-700 py-3 px-8 rounded-md font-medium hover:bg-white/90 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600">
               Apply as a Contractor
