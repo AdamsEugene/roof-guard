@@ -1,0 +1,9 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="shingle-pattern" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M0 0 L50 0 L50 25 L25 50 L0 25 Z" fill="#333" />
+      <path d="M0 25 L25 50 L50 25 L50 50 L0 50 Z" fill="#444" />
+    </pattern>
+  </defs>
+  <rect width="500" height="500" fill="url(#shingle-pattern)" />
+</svg> 
