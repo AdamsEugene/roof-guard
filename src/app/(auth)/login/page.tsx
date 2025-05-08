@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+// Client component that uses useSearchParams
+function LoginContent() {
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="card p-8 shadow-lg bg-white rounded-xl">
+    <>
       <div className="text-center mb-8">
         <h1 className="text-2xl font-display font-bold text-slate-900">
           Welcome Back
@@ -202,6 +203,26 @@ export default function LoginPage() {
           Sign up
         </Link>
       </p>
+    </>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function LoginPage() {
+  return (
+    <div className="card p-8 shadow-lg bg-white rounded-xl">
+      <Suspense
+        fallback={
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+            </div>
+            <p className="text-slate-600">Loading...</p>
+          </div>
+        }
+      >
+        <LoginContent />
+      </Suspense>
     </div>
   );
 }
